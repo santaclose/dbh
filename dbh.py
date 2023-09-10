@@ -5,6 +5,13 @@ import sys
 import parse
 from collections import defaultdict
 
+DBH_INCLUDES_CPP = """
+#include <cstdio> // /*dbh_inc*/
+"""[1:]
+
+DBH_INCLUDES_C = """
+#include <stdio.h> // /*dbh_inc*/
+"""[1:]
 
 def filesInFolderRec(folder):
 	return [os.path.join(dp, f).replace('\\', '/') for dp, dn, filenames in os.walk(folder) for f in filenames]
@@ -18,6 +25,8 @@ def isValueInIntervals(value, intervals):
 def addFunctionTrace(filePath, functionExitToo=False):
 	with open(filePath, 'r') as cppFile:
 		code = cppFile.read()
+	if not code.startswith(DBH_INCLUDES_CPP):
+		code = DBH_INCLUDES_CPP + code
 	commentIntervals = []
 	stringIntervals = []
 	parse.getStringAndCommentIntervals(code, commentIntervals, stringIntervals)
@@ -69,30 +78,39 @@ def clear(filePath):
 		code = cppFile.read()
 	actionDict = defaultdict(lambda: 0)
 	while True:
-		ms = re.search(r'/\*dhelper_([^_]+)_s\*/', code)
+		ms = re.search(r'/\*dbh_([^_]+)_s\*/', code)
 		if ms is None:
 			break
-		me = re.search(r'/\*dhelper_([^_]+)_e\*/', code)
+		me = re.search(r'/\*dbh_([^_]+)_e\*/', code)
 		actionDict[me.group(1)] += 1
 		code = code[:ms.start()] + code[me.end():]
+	index = -1
+	while True:
+		index = code.rfind(" // /*dbh_", 0, index)
+		if index < 0:
+			break
+		index = code.rfind('\n', 0, index) + 1
+		lineEnd = code.find('\n', index) + 1
+		code = code[:index] + code[lineEnd:]
 	with open(filePath, 'w') as cppFile:
 		cppFile.write(code)
 	for k in actionDict.keys():
 		print(f"removed {actionDict[k]} instances of {k} in {filePath}")
 
 
-mode = sys.argv[1]
-targetPath = sys.argv[2]
+if __name__ == "__main__":
+	mode = sys.argv[1]
+	targetPath = sys.argv[2]
 
-if "ft" in mode:
-	if os.path.isdir(targetPath):
-		for f in filesInFolderRec(targetPath):
-			removeFunctionTrace(f) if "r" in mode else addFunctionTrace(f, "e" in mode)
-	else:
-		removeFunctionTrace(targetPath) if "r" in mode else addFunctionTrace(targetPath, "e" in mode)
-elif mode == "clear":
-	if os.path.isdir(targetPath):
-		for f in filesInFolderRec(targetPath):
-			clear(f)
-	else:
-		clear(targetPath)
+	if "ft" in mode:
+		if os.path.isdir(targetPath):
+			for f in filesInFolderRec(targetPath):
+				removeFunctionTrace(f) if "r" in mode else addFunctionTrace(f, "e" in mode)
+		else:
+			removeFunctionTrace(targetPath) if "r" in mode else addFunctionTrace(targetPath, "e" in mode)
+	elif mode == "clear":
+		if os.path.isdir(targetPath):
+			for f in filesInFolderRec(targetPath):
+				clear(f)
+		else:
+			clear(targetPath)
