@@ -5,14 +5,6 @@ import sys
 import parse
 from collections import defaultdict
 
-DBH_INCLUDES_CPP = """
-#include <cstdio> // /*dbh_inc*/
-"""[1:]
-
-DBH_INCLUDES_C = """
-#include <stdio.h> // /*dbh_inc*/
-"""[1:]
-
 def filesInFolderRec(folder):
 	return [os.path.join(dp, f).replace('\\', '/') for dp, dn, filenames in os.walk(folder) for f in filenames]
 
@@ -25,13 +17,11 @@ def isValueInIntervals(value, intervals):
 def addFunctionTrace(filePath, functionExitToo=False):
 	with open(filePath, 'r') as cppFile:
 		code = cppFile.read()
-	if not code.startswith(DBH_INCLUDES_CPP):
-		code = DBH_INCLUDES_CPP + code
 	commentIntervals = []
 	stringIntervals = []
 	parse.getStringAndCommentIntervals(code, commentIntervals, stringIntervals)
 
-	functionMatches = [(x.start(), x.end()) for x in re.finditer(r"\w+\([^;{()]*\)[\s\n]*{", code)]
+	functionMatches = [(x.start(), x.end()) for x in re.finditer(r"\w+\([^;{()]*\)[\s\n]*(const)?[\s\n]*{", code)]
 	for fm in reversed(functionMatches):
 		fms = fm[0]
 		fme = fm[1]
