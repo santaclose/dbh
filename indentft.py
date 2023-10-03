@@ -14,7 +14,7 @@ def indentFunctionTrace(ftstring):
 		output += '  ' * currentIndent
 		output += line
 		if isStart:
-			output += ' ' + perFunctionCounter[line[:-5]]
+			output += ' ' + str(perFunctionCounter[line[:-5]])
 		output += '\n'
 
 		if isStart:

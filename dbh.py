@@ -3,7 +3,7 @@ import re
 import os
 import sys
 import parse
-import indentf
+import indentft
 from collections import defaultdict
 
 def filesInFolderRec(folder):
@@ -101,7 +101,7 @@ if __name__ == "__main__":
 			clear(targetPath)
 	elif mode == "indentft":
 		with open(targetPath, 'r') as file:
-			indented = indentf.indentFunctionTrace(file.read())
+			indented = indentft.indentFunctionTrace(file.read())
 		with open(targetPath, 'w') as file:
 			file.write(indented)
 	elif "ft" in mode:
