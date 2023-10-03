@@ -3,6 +3,7 @@ import re
 import os
 import sys
 import parse
+import indentf
 from collections import defaultdict
 
 def filesInFolderRec(folder):
@@ -92,15 +93,20 @@ if __name__ == "__main__":
 	mode = sys.argv[1]
 	targetPath = sys.argv[2]
 
-	if "ft" in mode:
-		if os.path.isdir(targetPath):
-			for f in filesInFolderRec(targetPath):
-				removeFunctionTrace(f) if "r" in mode else addFunctionTrace(f, "e" in mode)
-		else:
-			removeFunctionTrace(targetPath) if "r" in mode else addFunctionTrace(targetPath, "e" in mode)
-	elif mode == "clear":
+	if mode == "clear":
 		if os.path.isdir(targetPath):
 			for f in filesInFolderRec(targetPath):
 				clear(f)
 		else:
 			clear(targetPath)
+	elif mode == "indentft":
+		with open(targetPath, 'r') as file:
+			indented = indentf.indentFunctionTrace(file.read())
+		with open(targetPath, 'w') as file:
+			file.write(indented)
+	elif "ft" in mode:
+		if os.path.isdir(targetPath):
+			for f in filesInFolderRec(targetPath):
+				removeFunctionTrace(f) if "r" in mode else addFunctionTrace(f, "e" in mode)
+		else:
+			removeFunctionTrace(targetPath) if "r" in mode else addFunctionTrace(targetPath, "e" in mode)
