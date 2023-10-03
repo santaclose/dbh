@@ -1,16 +1,24 @@
+from collections import defaultdict
 
 def indentFunctionTrace(ftstring):
+	perFunctionCounter = defaultdict(lambda: 0)
 	output = ""
 	currentIndent = 0
 	for line in ftstring.split('\n'):
-		if line.endswith("end"):
+		isStart = line.startswith("[dbh]") and line.endswith("start")
+		isEnd = line.startswith("[dbh]") and line.endswith("end")
+
+		if isEnd:
 			currentIndent -= 1
 
 		output += '  ' * currentIndent
 		output += line
+		if isStart:
+			output += ' ' + perFunctionCounter[line[:-5]]
 		output += '\n'
 
-		if line.endswith("start"):
+		if isStart:
+			perFunctionCounter[line[:-5]] += 1
 			currentIndent += 1
 	return output
 
