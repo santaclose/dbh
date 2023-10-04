@@ -44,9 +44,9 @@ def addFunctionTrace(filePath, functionExitToo=False):
 				if isValueInIntervals(openBracketIndex + 1 + rms, commentIntervals) or isValueInIntervals(openBracketIndex + 1 + rms, stringIntervals):
 					continue
 
-				functionCode = functionCode[:rms] + '/*dbh_ft_s*/{printf("[dbh] %s end\\n", __func__);/*dbh_ft_e*/' + rmv + '/*dbh_ft_s*/}/*dbh_ft_e*/' + functionCode[rme:]
-			code = code[:openBracketIndex + 1] + functionCode + '/*dbh_ft_s*/printf("[dbh] %s end\\n", __func__);/*dbh_ft_e*/' + code[closeBracketIndex:]
-		code = code[:fme] + f'/*dbh_ft_s*/printf("[dbh] %s start\\n", __func__);/*dbh_ft_e*/' + code[fme:]
+				functionCode = functionCode[:rms] + R'/*dbh_ft_s*/{printf("[dbh] %s end\n",__func__);/*dbh_ft_e*/' + rmv + '/*dbh_ft_s*/}/*dbh_ft_e*/' + functionCode[rme:]
+			code = code[:openBracketIndex + 1] + functionCode + R'/*dbh_ft_s*/printf("[dbh] %s end\n",__func__);/*dbh_ft_e*/' + code[closeBracketIndex:]
+		code = code[:fme] + R'/*dbh_ft_s*/static int dbh_c,dbh_l;if(dbh_l!=3){dbh_l=3;dbh_c=0;}else dbh_c++;printf("[dbh] %s start %d\n",__func__,dbh_c);/*dbh_ft_e*/' + code[fme:]
 
 	with open(filePath, 'w') as cppFile:
 		cppFile.write(code)
