@@ -101,9 +101,7 @@ if __name__ == "__main__":
 			clear(targetPath)
 	elif mode == "indentft":
 		with open(targetPath, 'r') as file:
-			indented = indentft.indentFunctionTrace(file.read())
-		with open(targetPath, 'w') as file:
-			file.write(indented)
+			print(indentft.indentFunctionTrace(file.read()))
 	elif "ft" in mode:
 		if os.path.isdir(targetPath):
 			for f in filesInFolderRec(targetPath):
